@@ -1,0 +1,57 @@
+<section class="main_wrapper" #getWidth>
+  <div class="column" *ngFor="let column of imagesTable">
+    <div
+      class="image_wrapper"
+      *ngFor="let image of column"
+      [ngStyle]="{
+        height: image + 'px'
+      }"
+    >
+      <img
+        [src]="'/api/' + image.image"
+        alt=""
+        (click)="openedImage = image; showImageModal = true"
+      />
+    </div>
+  </div>
+  <div *ngIf="imagesTable.length === 0 && !loading" class="no_images">
+    <h3>Здесь пока нет изображений</h3>
+  </div>
+
+  <div
+    class="image_modal modal"
+    [ngClass]="{ show: showImageModal }"
+    (click)="closeImageModal()"
+  >
+    <div class="image_wrapper" *ngIf="openedImage">
+      <img [src]="'/api' + openedImage.image" />
+    </div>
+  </div>
+
+  <div class="admin_auth" (click)="showAuthModal = true">
+    <img [src]="adminFunctionsLocked ? LOCK : UNLOCK" />
+  </div>
+  <div
+    class="auth_modal modal"
+    [ngClass]="{ show: showAuthModal }"
+    (click)="showAuthModal = false"
+  >
+    <div class="auth_wrapper" (click)="$event.stopPropagation()">
+      <div class="password_form__group field">
+        <input
+          type="input"
+          class="password_form__field"
+          placeholder="Name"
+          name="password"
+          id="password"
+          required
+        />
+        <label for="password" class="password_form__label">Пароль</label>
+      </div>
+      <div class="popover__content"></div>
+      <div class="auth_submit_wrapper">
+        <button class="auth_submit">Войти</button>
+      </div>
+    </div>
+  </div>
+</section>

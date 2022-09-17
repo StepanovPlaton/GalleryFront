@@ -1,0 +1,54 @@
+.menu_wrapper {
+    --menu-padding-top: 24px;
+    --logo-height: 10%;
+
+    padding-left: 64px;
+    padding-top: var(--menu-padding-top);
+    height: calc(100% - var(--menu-padding-top));
+
+    .logo_wrapper {
+        height: var(--logo-height);
+
+        img {
+            height: 100%;
+            width: min-content;
+        }
+    }
+
+    .pages {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        --pages-padding-top: 12px;
+        padding-top: var(--pages-padding-top);
+        height: calc(100% - var(--logo-height) - var(--pages-padding-top));
+
+        .top, .bottom {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page.about_me {
+            padding: 1.2vw 0;
+            margin: 0;
+        }
+
+        .page {
+            cursor: pointer;
+            padding: 1vw 0;
+            font-size: 1.5vw;
+            transition: all 0.5s ease;
+        }
+        .page:hover {
+            color: var(--text-color-accent);
+        }
+
+        .top {
+            overflow-y: auto;
+            height: 70%;
+        }
+        .bottom {
+            height: 30%;
+        }
+    }
+}

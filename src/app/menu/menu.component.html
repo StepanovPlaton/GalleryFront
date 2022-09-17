@@ -1,0 +1,20 @@
+<section class="menu_wrapper">
+  <div class="logo_wrapper">
+    <img [src]="LOGO" />
+  </div>
+  <div class="pages">
+    <div class="top">
+      <h4 class="page about_me">Обо мне!</h4>
+      <span
+        class="page"
+        *ngFor="let section of sections"
+        (click)="openSection(section.sectionId)"
+      >
+        {{ section.section }}
+      </span>
+    </div>
+    <div class="bottom">
+      <!--<span class="page">Some link #1</span>-->
+    </div>
+  </div>
+</section>

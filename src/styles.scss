@@ -1,1 +1,25 @@
-/* You can add global styles to this file, and also import other style files */
+html {
+    width: 100%;
+    height: 100%;
+    body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+
+        font-family: 'Poppins', sans-serif; 
+    }
+}
+
+html.dark {
+    --background: #393E46;
+    --background-accent: #222831;
+    --text-color: #00ADB5;
+    --text-color-accent: #EEEEEE;
+
+    background-color: var(--background);
+    color: var(--text-color);
+}
+
+html.white {
+    
+}
