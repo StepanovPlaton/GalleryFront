@@ -32,7 +32,7 @@ export class MainComponent implements AfterViewInit {
 
   adminFunctionsLocked: boolean = true;
   showAuthModal: boolean = false;
-  adminPassword: string = '';
+  @ViewChild('password') adminPassword: ElementRef | undefined;
 
   @ViewChild('getWidth') getWidth: ElementRef | undefined;
   columnCount: number = 3;
@@ -52,6 +52,7 @@ export class MainComponent implements AfterViewInit {
     combineLatest([this.route.paramMap, this.apiService.getListOfSections()])
       .pipe(
         switchMap(([params, sections]) => {
+          console.log(this.route);
           this.images = [];
           this.imagesTable = [];
           this.loading = true;
@@ -113,6 +114,9 @@ export class MainComponent implements AfterViewInit {
   }
 
   auth() {
-    this.authService.authorization(this.adminPassword);
+    this.authService
+      .authorization(this.adminPassword?.nativeElement.value)
+      .subscribe();
+    this.showAuthModal = false;
   }
 }

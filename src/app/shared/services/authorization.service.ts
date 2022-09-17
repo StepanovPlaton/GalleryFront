@@ -15,6 +15,11 @@ export class AuthorizationService {
     private readonly apiService: ApiService,
     private readonly cookieService: CookieService
   ) {
+    this.$token.subscribe((token) => {
+      this.token = token;
+      this.cookieService.put('token', token);
+    });
+
     this.token = this.cookieService.get('token') ?? '';
     if (this.token !== '') {
       this.apiService.checkToken(this.token).subscribe((token_correct) => {
@@ -26,7 +31,7 @@ export class AuthorizationService {
   }
 
   authorization(password: string) {
-    this.apiService.authorization(password).pipe(
+    return this.apiService.authorization(password).pipe(
       map((token) => {
         if (token) {
           this.token = token as string;
