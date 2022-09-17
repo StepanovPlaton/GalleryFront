@@ -11,6 +11,7 @@ import { combineLatest, switchMap } from 'rxjs';
 import { LOCK, UNLOCK } from 'src/app/shared/consts/images.const';
 import { IImage } from 'src/app/shared/models/image.model';
 import { ApiService } from 'src/app/shared/services/api.service';
+import { AuthorizationService } from 'src/app/shared/services/authorization.service';
 
 @Component({
   selector: 'app-main',
@@ -31,6 +32,7 @@ export class MainComponent implements AfterViewInit {
 
   adminFunctionsLocked: boolean = true;
   showAuthModal: boolean = false;
+  adminPassword: string = '';
 
   @ViewChild('getWidth') getWidth: ElementRef | undefined;
   columnCount: number = 3;
@@ -38,8 +40,13 @@ export class MainComponent implements AfterViewInit {
   constructor(
     private readonly apiService: ApiService,
     private readonly cdr: ChangeDetectorRef,
-    private readonly route: ActivatedRoute
-  ) {}
+    private readonly route: ActivatedRoute,
+    private readonly authService: AuthorizationService
+  ) {
+    this.authService.$token.subscribe(
+      (token) => (this.adminFunctionsLocked = authService.authorized)
+    );
+  }
 
   ngAfterViewInit(): void {
     combineLatest([this.route.paramMap, this.apiService.getListOfSections()])
@@ -103,5 +110,9 @@ export class MainComponent implements AfterViewInit {
       this.openedImage = null;
       this.cdr.markForCheck();
     }, 500);
+  }
+
+  auth() {
+    this.authService.authorization(this.adminPassword);
   }
 }

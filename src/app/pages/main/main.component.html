@@ -8,7 +8,7 @@
       }"
     >
       <img
-        [src]="'/api/' + image.image"
+        [src]="'/api/static/images/previews/' + image.image"
         alt=""
         (click)="openedImage = image; showImageModal = true"
       />
@@ -50,7 +50,7 @@
       </div>
       <div class="popover__content"></div>
       <div class="auth_submit_wrapper">
-        <button class="auth_submit">Войти</button>
+        <button class="auth_submit" (click)="auth()">Войти</button>
       </div>
     </div>
   </div>
