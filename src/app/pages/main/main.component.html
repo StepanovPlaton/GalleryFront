@@ -8,9 +8,10 @@
       }"
     >
       <img
-        [src]="'/api/static/images/previews/' + image.image"
+        *ngIf="image.previewData"
+        [src]="image.previewData"
         alt=""
-        (click)="openedImage = image; showImageModal = true"
+        (click)="openImageModal(image)"
       />
     </div>
   </div>
@@ -24,11 +25,38 @@
     (click)="closeImageModal()"
   >
     <div class="image_wrapper" *ngIf="openedImage">
-      <img [src]="'/api' + openedImage.image" />
+      <div class="image">
+        <img class="preview" [src]="openedImage.previewData" />
+        <img
+          class="full"
+          [src]="openedImage.imageData"
+          [ngStyle]="{
+            opacity: openedImage.imageData ? 1 : 0
+          }"
+        />
+      </div>
+      <div class="tags_wrapper">
+        <div *ngFor="let tag of tags">
+          <app-tag
+            *ngIf="
+              !adminFunctionsLocked || getTagSelectedForImage(tag, openedImage)
+            "
+            [edit]="!adminFunctionsLocked"
+            [tag]="tag"
+            [selected]="getTagSelectedForImage(tag, openedImage)"
+            (selectToggle)="
+              !adminFunctionsLocked && toggleTagOnImage(tag, openedImage)
+            "
+          ></app-tag>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="admin_auth" (click)="showAuthModal = true">
+  <div
+    class="admin_auth"
+    (click)="adminFunctionsLocked ? (showAuthModal = true) : logout()"
+  >
     <img [src]="adminFunctionsLocked ? LOCK : UNLOCK" />
   </div>
   <div

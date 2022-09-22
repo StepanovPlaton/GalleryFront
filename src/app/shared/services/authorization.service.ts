@@ -7,8 +7,8 @@ import { map, Subject } from 'rxjs';
   providedIn: 'root',
 })
 export class AuthorizationService {
-  token: string;
-  $token: Subject<string> = new Subject<string>();
+  token: string | null;
+  $token: Subject<string | null> = new Subject<string | null>();
   authorized: boolean = false;
 
   constructor(
@@ -17,15 +17,15 @@ export class AuthorizationService {
   ) {
     this.$token.subscribe((token) => {
       this.token = token;
-      this.cookieService.put('token', token);
+      if (token) this.cookieService.put('token', token);
     });
 
     this.token = this.cookieService.get('token') ?? '';
     if (this.token !== '') {
       this.apiService.checkToken(this.token).subscribe((token_correct) => {
         if (!token_correct) this.token = '';
-        this.$token.next(this.token);
         this.authorized = token_correct;
+        this.$token.next(this.token);
       });
     }
   }
@@ -35,10 +35,15 @@ export class AuthorizationService {
       map((token) => {
         if (token) {
           this.token = token as string;
-          this.$token.next(token as string);
           this.authorized = true;
+          this.$token.next(token as string);
         } else this.authorized = false;
       })
     );
+  }
+  logout() {
+    this.cookieService.remove('token');
+    this.authorized = false;
+    this.$token.next(null);
   }
 }

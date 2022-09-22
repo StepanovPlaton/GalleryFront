@@ -13,9 +13,8 @@
         display: flex;
         flex-direction: column;
         width: 300px;
-
+        position: relative;
         .image_wrapper {
-            //background-color: gray;
             min-height: 150px;
             margin: 12px;
             img {
@@ -56,13 +55,33 @@
     .image_modal {
         .image_wrapper {
             padding: 6px;
-            width: 90%;
-            height: 90%;
-            img {
-                width: 100%;
+            height: calc(100% - 50px);
+            display: flex;
+            .image {
                 height: 100%;
-                object-fit: contain;
-                border-radius: 5px;
+                position: relative;
+                .preview {
+                    height: 100%;
+                    object-fit: contain;
+                    border-radius: 5px;
+                    transition: all 0.5s ease-in;
+                    animation-duration: 1s;
+                    animation-name: show;
+                    opacity: 1;
+                }
+                @keyframes show {
+                    from { visibility: hidden; }
+                    to { visibility: visible; }
+                }
+                .full {
+                    height: 100%;
+                    object-fit: contain;
+                    border-radius: 5px;
+                    transition: all 0.5s ease-out;
+                    position: absolute;
+                    left: 0;
+                    opacity: 0;
+                }
             }
         }
     }

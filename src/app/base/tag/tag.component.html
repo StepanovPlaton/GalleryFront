@@ -1,0 +1,22 @@
+<div class="tag_wrapper" *ngIf="tag" (click)="$event.stopPropagation()">
+  <span
+    class="tag_name"
+    [ngStyle]="{
+      'background-color': tag.BgColor
+    }"
+    [ngClass]="{
+      disabled: !selected
+    }"
+    (click)="edit && tagSelectToggle()"
+  >
+    <div class="name">
+      {{ tag.tag }}
+    </div>
+  </span>
+  <div *ngIf="authorized" class="icon edit">
+    <img [src]="EDIT" />
+  </div>
+  <div *ngIf="authorized" class="icon edit">
+    <img [src]="DELETE" />
+  </div>
+</div>

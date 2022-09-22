@@ -26,7 +26,9 @@ export class MenuComponent implements OnInit {
   ngOnInit() {}
 
   openSection(sectionId: number) {
-    console.log(['pages', 'main', 'sections', sectionId]);
     this.router.navigate(['pages', 'main', 'sections', sectionId]);
+  }
+  openAllImagesSection() {
+    this.router.navigate(['pages', 'main']);
   }
 }
