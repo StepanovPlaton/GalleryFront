@@ -38,7 +38,7 @@ export class TagComponent implements AfterViewInit {
   @Output()
   createNewTag = new EventEmitter<string>();
   @Output()
-  deleteTag = new EventEmitter<null>();
+  deleteTag = new EventEmitter<void>();
 
   authorized = false;
   edit = false;
@@ -74,6 +74,6 @@ export class TagComponent implements AfterViewInit {
     this.createNewTag.next(this.editableTagName);
   }
   deleteThisTag() {
-    this.deleteTag.next(null);
+    this.deleteTag.next();
   }
 }

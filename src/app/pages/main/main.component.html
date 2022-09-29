@@ -11,7 +11,7 @@
         *ngIf="image.previewData"
         [src]="image.previewData"
         alt=""
-        (click)="openImageModal(image)"
+        (click)="viewedImage = image"
       />
     </div>
   </div>
@@ -19,117 +19,16 @@
     <h3>Здесь пока нет изображений</h3>
   </div>
 
-  <div
-    class="image_modal modal"
-    [ngClass]="{ show: showImageModal }"
-    (click)="closeImageModal()"
-  >
-    <div class="image_wrapper" *ngIf="openedImage">
-      <div class="image">
-        <img class="preview" [src]="openedImage.previewData" />
-        <img
-          class="full"
-          [src]="openedImage.imageData"
-          [ngStyle]="{
-            opacity: openedImage.imageData ? 1 : 0
-          }"
-        />
-      </div>
-      <div class="tags_wrapper">
-        <div *ngFor="let tag of tags">
-          <app-tag
-            *ngIf="
-              !adminFunctionsLocked || getTagSelectedForImage(tag, openedImage)
-            "
-            [editable]="!adminFunctionsLocked"
-            [tag]="tag"
-            [selected]="getTagSelectedForImage(tag, openedImage)"
-            [canToggle]="!adminFunctionsLocked"
-            (selectToggle)="
-              !adminFunctionsLocked && toggleTagOnImage(tag, openedImage)
-            "
-            (changeTagName)="changeTagName(tag.tagId, $event)"
-            (deleteTag)="deleteTag(tag.tagId)"
-          ></app-tag>
-        </div>
-        <app-tag
-          *ngIf="addingNewTag"
-          [createNew]="true"
-          (createNewTag)="createNewTag($event)"
-        >
-        </app-tag>
-        <div
-          class="add_tag"
-          *ngIf="!adminFunctionsLocked"
-          (click)="addingNewTag = true; $event.stopPropagation()"
-        >
-          <img [src]="ADD" />
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div
-    class="admin_auth"
-    (click)="adminFunctionsLocked ? (showAuthModal = true) : logout()"
-  >
-    <img [src]="adminFunctionsLocked ? LOCK : UNLOCK" />
-  </div>
-  <div
-    class="auth_modal modal"
-    [ngClass]="{ show: showAuthModal }"
-    (click)="showAuthModal = false"
-  >
-    <div class="auth_wrapper" (click)="$event.stopPropagation()">
-      <div class="password_form__group field">
-        <input
-          #password
-          type="input"
-          class="password_form__field"
-          placeholder="Name"
-          name="password"
-          id="password"
-          required
-        />
-        <label for="password" class="password_form__label">Пароль</label>
-      </div>
-      <div class="popover__content"></div>
-      <div class="auth_submit_wrapper">
-        <button class="auth_submit" (click)="auth()">Войти</button>
-      </div>
-    </div>
-  </div>
-
-  <input
-    #fileUpload
-    class="hidden"
-    type="file"
-    accept=".jpg, .png, .jpeg"
-    multiple
-    (change)="uploadImage($event)"
-  />
-  <div class="add_image">
-    <div
-      class="container"
-      [ngStyle]="{
-        opacity: showProgressBar ? 1 : 0
-      }"
-    >
-      <div class="progress-bar__container">
-        <div
-          class="progress-bar"
-          [ngStyle]="{ left: '-' + (100 - getGlobalLoadingProgress()) + '%' }"
-        >
-          <span class="progress-bar__text">Uploaded Successfully!</span>
-        </div>
-      </div>
-    </div>
-    <div
-      class="img_wrapper"
-      *ngIf="!adminFunctionsLocked && !showAuthModal"
-      (click)="fileUpload.click()"
-    >
-      <img [src]="ADD_IMAGE" />
-    </div>
-  </div>
+  <app-image-view
+    [inputImage]="viewedImage"
+    [authorized]="authorized"
+    (toggleTagOnImageInGrid)="toggleTagOnImageInGrid($event.tag, $event.image)"
+    (closeModal)="viewedImage = null"
+  ></app-image-view>
+  <app-auth class="app_auth" (authStateChange)="authorized = $event"></app-auth>
+  <app-add-image
+    class="app_add_image"
+    *ngIf="authorized"
+    (addNewImage)="allImages.push($event); createImageGrid(allImages)"
+  ></app-add-image>
 </section>

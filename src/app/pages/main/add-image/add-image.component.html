@@ -1,0 +1,28 @@
+<input
+  #fileUpload
+  class="hidden"
+  type="file"
+  accept=".jpg, .png, .jpeg"
+  multiple
+  (change)="uploadImage($event)"
+/>
+<div class="add_image">
+  <div
+    class="container"
+    [ngStyle]="{
+      opacity: showProgressBar ? 1 : 0
+    }"
+  >
+    <div class="progress-bar__container">
+      <div
+        class="progress-bar"
+        [ngStyle]="{ left: '-' + (100 - getGlobalLoadingProgress()) + '%' }"
+      >
+        <span class="progress-bar__text">Uploaded Successfully!</span>
+      </div>
+    </div>
+  </div>
+  <div class="img_wrapper" (click)="fileUpload.click()">
+    <img [src]="ADD_IMAGE" />
+  </div>
+</div>

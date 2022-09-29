@@ -1,0 +1,54 @@
+.image_modal {
+    z-index: 5;
+    .image_wrapper {
+        padding: 6px;
+        height: calc(100% - 50px);
+        display: flex;
+        .image {
+            height: 100%;
+            position: relative;
+            .preview {
+                height: 100%;
+                object-fit: contain;
+                border-radius: 5px;
+                transition: all 0.5s ease-in;
+                animation-duration: 1s;
+                animation-name: show;
+                opacity: 1;
+            }
+            @keyframes show {
+                from { visibility: hidden; }
+                to { visibility: visible; }
+            }
+            .full {
+                height: 100%;
+                object-fit: contain;
+                border-radius: 5px;
+                transition: all 0.5s ease-out;
+                position: absolute;
+                left: 0;
+                opacity: 0;
+            }
+        }
+        .tags_wrapper {
+            .add_tag {
+                height: 18px;
+                width: 16px;
+                padding: 2px 4px;
+                margin: 6px 16px;
+                background-color: var(--background);
+                border-radius: 6px;
+                img {
+                    height: 100%;
+                    width: 100%;
+                    filter: invert(1);
+                }
+                cursor: pointer;
+                transition: all 0.25s linear;
+            }
+            .add_tag:hover {
+                background-color: var(--background-accent);
+            }
+        }
+    }
+}
