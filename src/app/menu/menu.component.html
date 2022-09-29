@@ -17,7 +17,15 @@
       </span>
     </div>
     <div class="bottom">
-      <!--<span class="page">Some link #1</span>-->
+      <app-tag
+        *ngFor="let tag of tags"
+        [tag]="tag"
+        [selected]="tagInFilter(tag.tagId)"
+        [editable]="false"
+        [canToggle]="true"
+        (selectToggle)="tagInFilterToggle(tag, $event)"
+      >
+      </app-tag>
     </div>
   </div>
 </section>

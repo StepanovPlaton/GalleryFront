@@ -41,13 +41,29 @@
             *ngIf="
               !adminFunctionsLocked || getTagSelectedForImage(tag, openedImage)
             "
-            [edit]="!adminFunctionsLocked"
+            [editable]="!adminFunctionsLocked"
             [tag]="tag"
             [selected]="getTagSelectedForImage(tag, openedImage)"
+            [canToggle]="!adminFunctionsLocked"
             (selectToggle)="
               !adminFunctionsLocked && toggleTagOnImage(tag, openedImage)
             "
+            (changeTagName)="changeTagName(tag.tagId, $event)"
+            (deleteTag)="deleteTag(tag.tagId)"
           ></app-tag>
+        </div>
+        <app-tag
+          *ngIf="addingNewTag"
+          [createNew]="true"
+          (createNewTag)="createNewTag($event)"
+        >
+        </app-tag>
+        <div
+          class="add_tag"
+          *ngIf="!adminFunctionsLocked"
+          (click)="addingNewTag = true; $event.stopPropagation()"
+        >
+          <img [src]="ADD" />
         </div>
       </div>
     </div>
@@ -81,6 +97,39 @@
       <div class="auth_submit_wrapper">
         <button class="auth_submit" (click)="auth()">Войти</button>
       </div>
+    </div>
+  </div>
+
+  <input
+    #fileUpload
+    class="hidden"
+    type="file"
+    accept=".jpg, .png, .jpeg"
+    multiple
+    (change)="uploadImage($event)"
+  />
+  <div class="add_image">
+    <div
+      class="container"
+      [ngStyle]="{
+        opacity: showProgressBar ? 1 : 0
+      }"
+    >
+      <div class="progress-bar__container">
+        <div
+          class="progress-bar"
+          [ngStyle]="{ left: '-' + (100 - getGlobalLoadingProgress()) + '%' }"
+        >
+          <span class="progress-bar__text">Uploaded Successfully!</span>
+        </div>
+      </div>
+    </div>
+    <div
+      class="img_wrapper"
+      *ngIf="!adminFunctionsLocked && !showAuthModal"
+      (click)="fileUpload.click()"
+    >
+      <img [src]="ADD_IMAGE" />
     </div>
   </div>
 </section>

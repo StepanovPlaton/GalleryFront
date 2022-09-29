@@ -2,9 +2,10 @@
     height: 20px;
     width: fit-content;
     padding: 6px 12px;
-    display: flex;
+    display: inline-flex;
     justify-content: space-evenly;
     align-items: center;
+    user-select: none;
     .tag_name {
         border-radius: 6px;
         margin: 0 4px;
@@ -15,8 +16,23 @@
             border-radius: 6px;
             background-color: rgba(0,0,0,0.15);
             color: var(--text-color-accent);
-            transition: all 0.25s linear;
+            transition: background-color 0.25s linear;
             text-shadow: 1px 1px 1px black;
+        }
+        .name_input {
+            // monospace
+            font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+            input {
+                font-size: 16px;
+                border: 0;
+                background: none;
+                color: var(--text-color-accent);
+                width: 100%;
+                font-family: inherit;
+                resize: none;
+                outline: none;
+                text-shadow: 1px 1px 1px black;
+            }
         }
     }
     .tag_name.disabled {
@@ -49,6 +65,13 @@
         }
         cursor: pointer;
         transition: all 0.25s linear;
+        animation-duration: 1s;
+        animation-name: show;
+        opacity: 1;
+    }
+    @keyframes show {
+        from { visibility: hidden; }
+        to { visibility: visible; }
     }
     .icon:hover {
         background-color: var(--background-accent);

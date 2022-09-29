@@ -53,6 +53,7 @@
     }
 
     .image_modal {
+        z-index: 5;
         .image_wrapper {
             padding: 6px;
             height: calc(100% - 50px);
@@ -83,6 +84,26 @@
                     opacity: 0;
                 }
             }
+            .tags_wrapper {
+                .add_tag {
+                    height: 18px;
+                    width: 16px;
+                    padding: 2px 4px;
+                    margin: 6px 16px;
+                    background-color: var(--background);
+                    border-radius: 6px;
+                    img {
+                        height: 100%;
+                        width: 100%;
+                        filter: invert(1);
+                    }
+                    cursor: pointer;
+                    transition: all 0.25s linear;
+                }
+                .add_tag:hover {
+                    background-color: var(--background-accent);
+                }
+            }
         }
     }
 
@@ -91,8 +112,8 @@
         width: 24px;
         padding: 6px;
         position: absolute;
-        top: 12px;
-        right: 24px;
+        top: 8px;
+        right: 16px;
         img {
             width: 100%;
             height: 100%;
@@ -115,57 +136,57 @@
                 $secondary: var(--text-color-accent);
                 $white: #fff;
                 $gray: var(--background);
-              position: relative;
-              padding: 4px;
-              width: 100%;
-              .password_form__field {
-                font-family: inherit;
+                position: relative;
+                padding: 4px;
                 width: 100%;
-                border: 0;
-                border-bottom: 2px solid $gray;
-                outline: 0;
-                font-size: 1.3rem;
-                color: $white;
-                padding: 7px 0;
-                background: transparent;
-                transition: border-color 0.2s;
+                .password_form__field {
+                    font-family: inherit;
+                    width: 100%;
+                    border: 0;
+                    border-bottom: 2px solid $gray;
+                    outline: 0;
+                    font-size: 1.3rem;
+                    color: $white;
+                    padding: 7px 0;
+                    background: transparent;
+                    transition: border-color 0.2s;
+                    
+                    &::placeholder {
+                      color: transparent;
+                    }
+                  
+                    &:placeholder-shown ~ .password_form__label {
+                      font-size: 1.3rem;
+                      cursor: text;
+                      top: 16px;
+                    }
+                }
               
-                &::placeholder {
-                  color: transparent;
+                .password_form__label {
+                    position: absolute;
+                    top: -8px;
+                    display: block;
+                    transition: 0.2s;
+                    font-size: 1rem;
+                    color: $gray;
                 }
-            
-                &:placeholder-shown ~ .password_form__label {
-                  font-size: 1.3rem;
-                  cursor: text;
-                  top: 16px;
+              
+                .password_form__field:focus {
+                    ~ .password_form__label {
+                      position: absolute;
+                      top: -12px;
+                      display: block;
+                      transition: 0.2s;
+                      font-size: 1rem;
+                      color: $primary;
+                      font-weight:700;    
+                    }
+                    padding-bottom: 6px;  
+                    font-weight: 700;
+                    border-width: 3px;
+                    border-image: linear-gradient(to right, $primary,$secondary);
+                    border-image-slice: 1;
                 }
-              }
-  
-              .password_form__label {
-                position: absolute;
-                top: -8px;
-                display: block;
-                transition: 0.2s;
-                font-size: 1rem;
-                color: $gray;
-              }
-  
-              .password_form__field:focus {
-                ~ .password_form__label {
-                  position: absolute;
-                  top: -12px;
-                  display: block;
-                  transition: 0.2s;
-                  font-size: 1rem;
-                  color: $primary;
-                  font-weight:700;    
-                }
-                padding-bottom: 6px;  
-                font-weight: 700;
-                border-width: 3px;
-                border-image: linear-gradient(to right, $primary,$secondary);
-                border-image-slice: 1;
-              }
             }
 
             .auth_submit_wrapper {
@@ -188,5 +209,73 @@
                 }
             }
         }
+    }
+
+    .add_image {
+        height: 28px;
+        width: 20%;
+        padding: 6px;
+        position: absolute;
+        top: 8px;
+        right: 48px;
+        display: flex;
+        align-items: center;
+        .img_wrapper{
+            width: 24px;
+            height: 100%;
+            border-radius: 3px;
+            background-color: var(--background);
+            padding: 4px 8px;
+            img {
+                width: 100%;
+                height: 100%;
+            }
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: calc(100% - 24px);
+            height: 25px;
+            transition: all 5s ease-in;
+          }
+          
+          .progress-bar__container {
+            width: 80%;
+            height: 1rem;
+            border-radius: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s;
+            will-change: transform;
+            box-shadow: 0 0 5px #e76f51;
+          }
+          
+          .progress-bar {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            content: "";
+            background-color: #e76f51;
+            top:0;
+            bottom: 0;
+            left: -100%;
+            border-radius: inherit;
+            display: flex;
+            justify-content: center;
+            align-items:center;
+            color: white;
+            font-family: sans-serif;
+          }
+          
+          .progress-bar__text {
+            display: none;
+          }
+          
+          
+    }
+    .hidden {
+        visibility: hidden;
+        position: fixed;
     }
 }

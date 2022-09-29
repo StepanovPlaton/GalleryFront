@@ -1,22 +1,54 @@
-<div class="tag_wrapper" *ngIf="tag" (click)="$event.stopPropagation()">
+<span
+  class="tag_wrapper"
+  *ngIf="tag || createNew"
+  (click)="edit && submitNewTagName(); edit = false; $event.stopPropagation()"
+>
   <span
     class="tag_name"
     [ngStyle]="{
-      'background-color': tag.BgColor
+      'background-color': tag ? tag.BgColor : 'rgb(150, 150, 150)'
     }"
     [ngClass]="{
       disabled: !selected
     }"
-    (click)="edit && tagSelectToggle()"
+    (click)="canToggle && tagSelectToggle()"
   >
-    <div class="name">
+    <div class="name" *ngIf="!edit && tag; else editTagName">
       {{ tag.tag }}
     </div>
+    <ng-template #editTagName>
+      <div
+        class="name name_input"
+        (click)="$event.stopPropagation()"
+        [ngStyle]="{
+          'width.ch': editableTagName.length,
+          'min-width.ch': 5
+        }"
+      >
+        <input
+          #inputTagName
+          autofocus
+          [(ngModel)]="editableTagName"
+          (keyup.enter)="
+            tag ? submitNewTagName() : createNewTagF(); edit = false
+          "
+          (keyup.esc)="editableTagName = tag ? tag.tag : ''; edit = false"
+        />
+      </div>
+    </ng-template>
   </span>
-  <div *ngIf="authorized" class="icon edit">
+  <div
+    *ngIf="authorized && editable && !edit"
+    class="icon edit"
+    (click)="editable && (edit = true); $event.stopPropagation()"
+  >
     <img [src]="EDIT" />
   </div>
-  <div *ngIf="authorized" class="icon edit">
+  <div
+    *ngIf="authorized && editable && !edit"
+    class="icon edit"
+    (click)="deleteThisTag(); $event.stopPropagation()"
+  >
     <img [src]="DELETE" />
   </div>
-</div>
+</span>

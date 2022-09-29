@@ -6,6 +6,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MenuComponent } from './menu/menu.component';
 import { CookieModule } from 'ngx-cookie';
+import { TagModule } from './base/tag/tag.module';
 
 @NgModule({
   declarations: [AppComponent, MenuComponent],
@@ -14,6 +15,8 @@ import { CookieModule } from 'ngx-cookie';
     AppRoutingModule,
     HttpClientModule,
     CookieModule.withOptions(),
+
+    TagModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

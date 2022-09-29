@@ -12,6 +12,8 @@
         img {
             height: 100%;
             width: min-content;
+            pointer-events: none;
+            user-select: none;
         }
     }
 
@@ -49,6 +51,12 @@
         }
         .bottom {
             height: 30%;
+            display: inline;
+
+            app-tag {
+                display: inline;
+                width: fit-content;
+            }
         }
     }
 }

@@ -1,17 +1,24 @@
+import { HttpEventType } from '@angular/common/http';
 import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
   ElementRef,
-  OnInit,
   ViewChild,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { combineLatest, switchMap } from 'rxjs';
-import { LOCK, UNLOCK } from 'src/app/shared/consts/images.const';
+import { catchError, combineLatest, last, map, of, switchMap } from 'rxjs';
+import {
+  ADD,
+  ADD_IMAGE,
+  LOCK,
+  UNLOCK,
+} from 'src/app/shared/consts/images.const';
 import { IImage, ITag } from 'src/app/shared/models/image.model';
 import { ApiService } from 'src/app/shared/services/api.service';
 import { AuthorizationService } from 'src/app/shared/services/authorization.service';
+import { TagsService } from 'src/app/shared/services/tags.service';
+import { TagsColorService } from 'src/app/shared/utils/tags-colors.service';
 
 @Component({
   selector: 'app-main',
@@ -21,8 +28,11 @@ import { AuthorizationService } from 'src/app/shared/services/authorization.serv
 export class MainComponent implements AfterViewInit {
   LOCK = LOCK;
   UNLOCK = UNLOCK;
+  ADD = ADD;
+  ADD_IMAGE = ADD_IMAGE;
 
   imagesTable: (IImage & { imageData?: string; previewData?: string })[][] = [];
+  allImages: IImage[] = [];
   images: IImage[] = [];
   tags: ITag[] = [];
 
@@ -31,6 +41,11 @@ export class MainComponent implements AfterViewInit {
     null;
 
   loading: boolean = true;
+
+  addingNewTag: boolean = false;
+
+  showProgressBar: boolean = false;
+  loadingProgress: { fileTmpId: string; loadingProgress: number }[] = [];
 
   adminFunctionsLocked: boolean = true;
   showAuthModal: boolean = false;
@@ -43,11 +58,15 @@ export class MainComponent implements AfterViewInit {
     private readonly apiService: ApiService,
     private readonly cdr: ChangeDetectorRef,
     private readonly route: ActivatedRoute,
-    private readonly authService: AuthorizationService
+    private readonly authService: AuthorizationService,
+    private readonly tagsColorService: TagsColorService,
+    private readonly tagsService: TagsService
   ) {
+    this.adminFunctionsLocked = !authService.authorized;
     this.authService.$token.subscribe((token) => {
       this.adminFunctionsLocked = !authService.authorized;
       this.cdr.markForCheck();
+      console.log('token', token, !this.adminFunctionsLocked);
     });
   }
 
@@ -55,10 +74,13 @@ export class MainComponent implements AfterViewInit {
     combineLatest([
       this.route.paramMap,
       this.apiService.getListOfSections(),
-      this.apiService.getAllTags(),
+      this.tagsService.tags.length === 0
+        ? this.tagsService.$tags
+        : of(this.tagsService.tags),
     ])
       .pipe(
         switchMap(([params, sections, tags]) => {
+          this.allImages = [];
           this.images = [];
           this.imagesTable = [];
           this.tags = tags;
@@ -78,41 +100,54 @@ export class MainComponent implements AfterViewInit {
         })
       )
       .subscribe((images) => {
-        this.images = images;
-        if (this.getWidth) {
-          this.columnCount = Math.trunc(
-            this.getWidth.nativeElement.clientWidth / 300
-          );
-          this.columnCount = this.columnCount < 2 ? 2 : this.columnCount;
-          for (let i = 0; i < this.columnCount; i++) {
-            let col: (IImage & { imageData?: string; previewData?: string })[] =
-              [];
-            for (
-              let i = 0;
-              i < Math.ceil(this.images.length / this.columnCount);
-              i++
-            ) {
-              const image = this.images.pop();
-              if (image) {
-                col.push(image);
-                this.apiService
-                  .getPreviewImageFile(image.image)
-                  .subscribe((imageBlob) => {
-                    const reader = new FileReader();
-                    reader.readAsDataURL(imageBlob);
-                    reader.onload = (_event) => {
-                      col[i].previewData = String(reader.result);
-                    };
-                  });
-              } else break;
-            }
-            if (col.length !== 0) this.imagesTable.push(col);
-            if (this.images.length === 0) break;
-          }
-        }
-        this.loading = false;
-        this.images = images;
+        this.allImages = images;
+        this.createImageGrid(images);
       });
+    this.tagsService.$filter.subscribe(() => {
+      this.createImageGrid(this.allImages);
+    });
+  }
+
+  createImageGrid(images: IImage[]) {
+    this.imagesTable = [];
+    this.images = images.filter((image) => {
+      if (this.tagsService.filter.length === 0) return true;
+      return this.tagsService.filter.every((ftag) => {
+        return image.tags.some((tag) => tag.tagId === ftag.tagId);
+      });
+    });
+    if (this.getWidth) {
+      this.columnCount = Math.trunc(
+        this.getWidth.nativeElement.clientWidth / 300
+      );
+      this.columnCount = this.columnCount < 2 ? 2 : this.columnCount;
+      for (let i = 0; i < this.columnCount; i++) {
+        let col: (IImage & { imageData?: string; previewData?: string })[] = [];
+        for (
+          let i = 0;
+          i < Math.ceil(this.images.length / this.columnCount);
+          i++
+        ) {
+          const image = this.images.pop();
+          if (image) {
+            col.push(image);
+            this.apiService
+              .getPreviewImageFile(image.image)
+              .subscribe((imageBlob) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(imageBlob);
+                reader.onload = (_event) => {
+                  col[i].previewData = String(reader.result);
+                };
+              });
+          } else break;
+        }
+        if (col.length !== 0) this.imagesTable.push(col);
+        if (this.images.length === 0) break;
+      }
+    }
+    this.loading = false;
+    this.images = images;
   }
 
   getTagSelectedForImage(tag: ITag, image: IImage) {
@@ -120,7 +155,6 @@ export class MainComponent implements AfterViewInit {
   }
 
   toggleTagOnImage(tag: ITag, image: IImage) {
-    console.log(tag, image);
     if (this.authService.token) {
       (this.getTagSelectedForImage(tag, image)
         ? this.apiService.deleteTagFromImage
@@ -128,7 +162,6 @@ export class MainComponent implements AfterViewInit {
       )
         .bind(this.apiService)(image.imageId, tag.tagId, this.authService.token)
         .subscribe(() => {
-          console.log(this);
           for (let column of this.imagesTable) {
             for (let _image of column) {
               if (_image.imageId === image.imageId) {
@@ -143,6 +176,40 @@ export class MainComponent implements AfterViewInit {
             }
           }
         });
+    }
+  }
+
+  changeTagName(tagId: number, newTagName: string) {
+    if (this.authService.token) {
+      this.apiService
+        .changeTagName(tagId, newTagName, this.authService.token)
+        .subscribe(() => {
+          for (let tag of this.tags) {
+            if (tag.tagId === tagId) tag.tag = newTagName;
+          }
+        });
+    }
+  }
+  createNewTag(tagName: string) {
+    if (this.authService.token) {
+      this.apiService
+        .createTag(tagName, this.authService.token)
+        .subscribe(({ tagId }) => {
+          this.tags.push(
+            this.tagsColorService.addColorToTag({
+              tagId: tagId,
+              tag: tagName,
+            })
+          );
+          this.addingNewTag = false;
+        });
+    }
+  }
+  deleteTag(tagId: number) {
+    if (this.authService.token) {
+      this.apiService.deleteTag(tagId, this.authService.token).subscribe(() => {
+        this.tags = this.tags.filter((tag) => tag.tagId !== tagId);
+      });
     }
   }
 
@@ -172,6 +239,74 @@ export class MainComponent implements AfterViewInit {
       this.openedImage = null;
       this.cdr.markForCheck();
     }, 500);
+  }
+
+  uploadImage(event: any) {
+    let files: File[] = event.target.files;
+    for (let file of files) {
+      this.apiService
+        .addImage(file)
+        .pipe(
+          map((event) => {
+            switch (event.type) {
+              case HttpEventType.Sent:
+                this.showProgressBar = true;
+                this.loadingProgress = [];
+                return null;
+
+              case HttpEventType.UploadProgress:
+                if (
+                  this.loadingProgress.some(
+                    (fileLoadingProgress) =>
+                      fileLoadingProgress.fileTmpId === file.name + file.size
+                  )
+                ) {
+                  for (let lp of this.loadingProgress) {
+                    if (lp.fileTmpId === file.name + file.size) {
+                      lp.loadingProgress = event.total
+                        ? Math.round((100 * event.loaded) / event.total)
+                        : 0;
+                    }
+                  }
+                } else {
+                  this.loadingProgress.push({
+                    fileTmpId: file.name + file.size,
+                    loadingProgress: event.total
+                      ? Math.round((100 * event.loaded) / event.total)
+                      : 0,
+                  });
+                }
+                return null;
+
+              case HttpEventType.Response:
+                this.showProgressBar = false;
+                return event.body;
+            }
+            return null;
+          }),
+          last(),
+          switchMap((event) => {
+            if (event) {
+              return this.apiService.getImage(event.imageId);
+            }
+            return of(null);
+          })
+        )
+        .subscribe((image) => {
+          if (image) {
+            this.allImages.push(image);
+            this.createImageGrid(this.allImages);
+          }
+        });
+    }
+  }
+
+  getGlobalLoadingProgress() {
+    return (
+      this.loadingProgress.reduce((sum, v) => {
+        return sum + v.loadingProgress;
+      }, 0) / this.loadingProgress.length
+    );
   }
 
   auth() {
