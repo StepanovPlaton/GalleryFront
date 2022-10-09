@@ -25,12 +25,15 @@ export class AuthInterceptor implements HttpInterceptor {
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
     const authReq = req.clone({
-      body: {
-        token: this.token ?? '',
-        ...req.body,
-      },
+      body:
+        req.body instanceof FormData
+          ? req.body
+          : {
+              token: this.token ?? '',
+              ...req.body,
+            },
     });
-
+    console.log(authReq, req);
     return next.handle(authReq);
   }
 }
