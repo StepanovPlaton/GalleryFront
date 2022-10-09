@@ -45,10 +45,7 @@ export class TagComponent implements AfterViewInit {
 
   editableTagName: string = '';
 
-  constructor(
-    private readonly authService: AuthorizationService,
-    private readonly apiService: ApiService
-  ) {
+  constructor(private readonly authService: AuthorizationService) {
     this.authorized = this.authService.authorized;
     this.authService.$token.subscribe(() => {
       this.authorized = this.authService.authorized;

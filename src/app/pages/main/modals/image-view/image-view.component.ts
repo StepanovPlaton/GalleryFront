@@ -7,12 +7,10 @@ import {
   Output,
 } from '@angular/core';
 import { of } from 'rxjs';
-import { ADD } from 'src/app/shared/consts/images.const';
 import { IImage, ITag } from 'src/app/shared/models/image.model';
 import { ApiService } from 'src/app/shared/services/api.service';
 import { AuthorizationService } from 'src/app/shared/services/authorization.service';
 import { TagsService } from 'src/app/shared/services/tags.service';
-import { TagsColorService } from 'src/app/shared/utils/tags-colors.service';
 
 type openedImage =
   | (IImage & { imageData?: string; previewData?: string })
@@ -24,8 +22,6 @@ type openedImage =
   styleUrls: ['./image-view.component.scss'],
 })
 export class ImageViewComponent implements OnInit {
-  ADD = ADD;
-
   showImageModal: boolean = false;
 
   addingNewTag: boolean = false;
@@ -34,6 +30,7 @@ export class ImageViewComponent implements OnInit {
   @Input() authorized: boolean = false;
 
   openedImage: openedImage = null;
+
   @Input()
   set inputImage(image: IImage | null) {
     if (image) this.openImageModal(image);
@@ -44,71 +41,37 @@ export class ImageViewComponent implements OnInit {
   }
 
   @Output()
-  toggleTagOnImageInGrid = new EventEmitter<{ tag: ITag; image: IImage }>();
+  toggleTagOnImageInGrid = new EventEmitter<ITag>();
   @Output() closeModal = new EventEmitter<void>();
 
   constructor(
     private readonly apiService: ApiService,
-    private readonly authService: AuthorizationService,
-    private readonly tagsColorService: TagsColorService,
     private readonly cdr: ChangeDetectorRef,
     private readonly tagsService: TagsService
   ) {
-    this.tagsService.tags.length === 0
-      ? this.tagsService.$tags
-      : of(this.tagsService.tags).subscribe((tags) => {
-          this.tags = tags;
-        });
+    this.tagsService.getTags().subscribe((tags) => {
+      this.tags = tags;
+    });
   }
 
   ngOnInit() {}
 
-  getTagSelectedForImage(tag: ITag, image: IImage) {
-    return image.tags.some((_tag) => _tag.tagId === tag.tagId);
+  getTagSelectedForImage(tag: ITag) {
+    return this.openedImage
+      ? this.openedImage.tags.some((_tag) => _tag.tagId === tag.tagId)
+      : false;
   }
 
-  toggleTagOnImage(tag: ITag, image: IImage) {
-    if (this.authService.token) {
-      (this.getTagSelectedForImage(tag, image)
+  toggleTagOnImage(tag: ITag) {
+    if (this.openedImage) {
+      (this.getTagSelectedForImage(tag)
         ? this.apiService.deleteTagFromImage
         : this.apiService.addTagToImage
       )
-        .bind(this.apiService)(image.imageId, tag.tagId, this.authService.token)
-        .subscribe(() => {});
-    }
-  }
-
-  changeTagName(tagId: number, newTagName: string) {
-    if (this.authService.token) {
-      this.apiService
-        .changeTagName(tagId, newTagName, this.authService.token)
+        .bind(this.apiService)(this.openedImage.imageId, tag.tagId)
         .subscribe(() => {
-          for (let tag of this.tags) {
-            if (tag.tagId === tagId) tag.tag = newTagName;
-          }
+          this.toggleTagOnImageInGrid.next(tag);
         });
-    }
-  }
-  createNewTag(tagName: string) {
-    if (this.authService.token) {
-      this.apiService
-        .createTag(tagName, this.authService.token)
-        .subscribe(({ tagId }) => {
-          this.tags.push(
-            this.tagsColorService.addColorToTag({
-              tagId: tagId,
-              tag: tagName,
-            })
-          );
-          this.addingNewTag = false;
-        });
-    }
-  }
-  deleteTag(tagId: number) {
-    if (this.authService.token) {
-      this.apiService.deleteTag(tagId, this.authService.token).subscribe(() => {
-        this.tags = this.tags.filter((tag) => tag.tagId !== tagId);
-      });
     }
   }
 

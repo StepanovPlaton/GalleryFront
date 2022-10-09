@@ -1,0 +1,18 @@
+.add_tag {
+    height: 18px;
+    width: 16px;
+    padding: 2px 4px;
+    margin: 6px 16px;
+    background-color: var(--background);
+    border-radius: 6px;
+    img {
+        height: 100%;
+        width: 100%;
+        filter: invert(1);
+    }
+    cursor: pointer;
+    transition: all 0.25s linear;
+}
+.add_tag:hover {
+    background-color: var(--background-accent);
+}

@@ -1,0 +1,44 @@
+.edit_section_wrapper {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0;
+
+    z-index: -1;
+
+    transition: all 0.5s linear;
+
+    .edit_section {
+        max-width: var(--side-menu-width);
+        width: 200px;
+        height: 100%;
+        background-color: var(--background);
+
+        .content {
+            height: 100%;
+            width: 100%;
+            background-color: rgba(0,0,0,0.15);
+        }
+    }
+}   
+.edit_section_wrapper.show {
+    left: var(--side-menu-width);
+    width: calc(100% - var(--side-menu-width));
+    .edit_section {
+        box-shadow: 1px 0px 10px var(--background);
+    }
+}
+
+.unfocus_content {
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: var(--side-menu-width);
+    transition: all 0.5s linear;
+    width: calc(100% - var(--side-menu-width));
+    z-index: -2;
+}
+.unfocus_content.show {
+    background-color: rgba(0,0,0,0.3);
+}

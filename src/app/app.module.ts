@@ -1,4 +1,4 @@
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
@@ -7,18 +7,26 @@ import { AppComponent } from './app.component';
 import { MenuComponent } from './menu/menu.component';
 import { CookieModule } from 'ngx-cookie';
 import { TagModule } from './base/tag/tag.module';
+import { MenuModule } from './menu/menu.module';
+import { AuthInterceptor } from './shared/interseptors/auth.interseptor';
 
 @NgModule({
-  declarations: [AppComponent, MenuComponent],
+  declarations: [AppComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
     CookieModule.withOptions(),
 
-    TagModule,
+    MenuModule,
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true,
+    },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

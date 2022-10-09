@@ -3,6 +3,7 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  Input,
   OnInit,
   Output,
   ViewChild,
@@ -19,32 +20,26 @@ export class AuthComponent implements OnInit {
   LOCK = LOCK;
   UNLOCK = UNLOCK;
 
+  @Input()
   authorized: boolean = false;
   showAuthModal: boolean = false;
 
   @ViewChild('password') adminPassword: ElementRef | undefined;
-
-  @Output()
-  authStateChange = new EventEmitter<boolean>();
 
   constructor(
     private readonly authService: AuthorizationService,
     private readonly cdr: ChangeDetectorRef
   ) {
     this.authorized = authService.authorized;
-    this.authStateChange.next(authService.authorized);
-    this.authService.$token.subscribe((token) => {
+    this.authService.$token.subscribe(() => {
       if (this.authorized !== authService.authorized) {
-        this.authStateChange.next(authService.authorized);
       }
       this.authorized = authService.authorized;
       this.cdr.markForCheck();
     });
   }
 
-  ngOnInit() {
-    this.authStateChange.next(this.authorized);
-  }
+  ngOnInit() {}
 
   auth() {
     this.authService

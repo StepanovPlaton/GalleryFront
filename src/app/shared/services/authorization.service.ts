@@ -23,7 +23,6 @@ export class AuthorizationService {
     this.token = this.cookieService.get('token') ?? '';
     if (this.token !== '') {
       this.apiService.checkToken(this.token).subscribe((token_correct) => {
-        console.log('token', token_correct);
         if (!token_correct) this.token = '';
         this.authorized = token_correct;
         this.$token.next(this.token);

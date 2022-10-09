@@ -1,0 +1,25 @@
+<div *ngFor="let tag of tags">
+  <app-tag
+    *ngIf="authorized || tag.selected"
+    [editable]="authorized"
+    [tag]="tag"
+    [selected]="tag.selected"
+    [canToggle]="authorized"
+    (selectToggle)="authorized && toggle.next(tag)"
+    (changeTagName)="changeTagName(tag.tagId, $event)"
+    (deleteTag)="deleteTag(tag.tagId)"
+  ></app-tag>
+</div>
+<app-tag
+  *ngIf="addingNewTag"
+  [createNew]="true"
+  (createNewTag)="createNewTag($event)"
+>
+</app-tag>
+<div
+  class="add_tag"
+  *ngIf="authorized"
+  (click)="addingNewTag = true; $event.stopPropagation()"
+>
+  <img [src]="ADD" />
+</div>

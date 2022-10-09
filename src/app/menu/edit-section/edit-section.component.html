@@ -1,0 +1,22 @@
+<section
+  class="edit_section_wrapper"
+  [ngClass]="{
+    show: !!section
+  }"
+  (click)="close()"
+>
+  <div class="edit_section">
+    <div class="content">
+      <app-tag-list
+        *ngIf="!!section"
+        [getSelectStatus]="getTagSelectedForSection.bind(this)"
+        (toggle)="toggleTag($event)"
+      ></app-tag-list>
+    </div>
+  </div>
+</section>
+<div
+  class="unfocus_content"
+  [ngClass]="{ show: !!section }"
+  *ngIf="focus"
+></div>

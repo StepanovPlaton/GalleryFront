@@ -1,3 +1,8 @@
+<app-edit-section
+  [section]="editableSection"
+  (click)="resetEditSection()"
+  (closeEdit)="resetEditSection()"
+></app-edit-section>
 <section class="menu_wrapper">
   <div class="logo_wrapper">
     <img [src]="LOGO" />
@@ -11,9 +16,39 @@
       <span
         class="page"
         *ngFor="let section of sections"
-        (click)="openSection(section.sectionId)"
+        (click)="
+          !section.edit ? openSection(section.sectionId) : resetEditSection()
+        "
+        [ngClass]="{
+          edit: !!section.edit
+        }"
       >
-        {{ section.section }}
+        <span *ngIf="!section.edit; else editSectionName">{{
+          section.section
+        }}</span>
+        <ng-template #editSectionName>
+          <input
+            #editSectionNameInput
+            [value]="section.section"
+            (click)="$event.stopPropagation()"
+            (keyup.enter)="
+              changeSectionName(section.sectionId, editSectionNameInput.value);
+              editSectionNameInput.blur()
+            "
+            (keyup.esc)="resetEditSection(false)"
+          />
+        </ng-template>
+        <span
+          class="page_edit"
+          *ngIf="!section.edit && authorized"
+          (click)="
+            focusOnSection(section);
+            openSection(section.sectionId);
+            $event.stopPropagation()
+          "
+        >
+          <img [src]="EDIT" />
+        </span>
       </span>
     </div>
     <div class="bottom">
@@ -28,4 +63,9 @@
       </app-tag>
     </div>
   </div>
+  <div
+    class="unfocus"
+    [ngClass]="{ show: editableSection }"
+    (click)="resetEditSection()"
+  ></div>
 </section>

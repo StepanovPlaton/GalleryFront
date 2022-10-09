@@ -3,6 +3,7 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
+  OnInit,
   ViewChild,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -10,6 +11,8 @@ import { combineLatest, of, switchMap } from 'rxjs';
 import { IImage, ITag } from 'src/app/shared/models/image.model';
 import { ApiService } from 'src/app/shared/services/api.service';
 import { AuthorizationService } from 'src/app/shared/services/authorization.service';
+import { ImagesService } from 'src/app/shared/services/images.service';
+import { SectionsService } from 'src/app/shared/services/sections.service';
 import { TagsService } from 'src/app/shared/services/tags.service';
 import { TagsColorService } from 'src/app/shared/utils/tags-colors.service';
 
@@ -29,6 +32,8 @@ export class MainComponent implements AfterViewInit {
 
   viewedImage: IImage | null = null;
 
+  currentSectionId: number = -1;
+
   @ViewChild('getWidth') getWidth: ElementRef | undefined;
   columnCount: number = 3;
 
@@ -38,13 +43,22 @@ export class MainComponent implements AfterViewInit {
     private readonly route: ActivatedRoute,
     private readonly authService: AuthorizationService,
     private readonly tagsColorService: TagsColorService,
-    private readonly tagsService: TagsService
-  ) {}
+    private readonly tagsService: TagsService,
+    private readonly sectionsService: SectionsService,
+    private readonly imagesService: ImagesService
+  ) {
+    this.authorized = authService.authorized;
+    this.authService.$token.subscribe(() => {
+      this.authorized = authService.authorized;
+      this.cdr.markForCheck();
+    });
+  }
 
-  ngAfterViewInit(): void {
-    combineLatest([this.route.paramMap, this.apiService.getListOfSections()])
+  ngAfterViewInit() {
+    combineLatest([this.route.paramMap, this.sectionsService.getSections()])
       .pipe(
         switchMap(([params, sections]) => {
+          console.log(sections);
           this.allImages = [];
           this.images = [];
           this.imagesTable = [];
@@ -52,31 +66,44 @@ export class MainComponent implements AfterViewInit {
           if (
             params.has('sectionId') &&
             sections.some(
-              (section) => section.sectionId == +(params.get('sectionId') ?? 0)
+              (section) => section.sectionId == +(params.get('sectionId') ?? -1)
             )
           ) {
-            return this.apiService.getSectionImages(
-              +(params.get('sectionId') ?? 0)
-            );
+            this.currentSectionId = +(params.get('sectionId') ?? -1);
+            return combineLatest([
+              this.imagesService.getSection(this.currentSectionId),
+            ]);
           } else {
-            return this.apiService.getAllImages();
+            return combineLatest([this.imagesService.getImages()]);
           }
         })
       )
-      .subscribe((images) => {
+      .subscribe(([images]) => {
         this.allImages = images;
-        this.createImageGrid(images);
+        this.createImageGrid(images, []);
       });
-    this.tagsService.$filter.subscribe(() => {
-      this.createImageGrid(this.allImages);
+    this.tagsService.$filter.subscribe((filter) => {
+      this.createImageGrid(this.allImages, filter);
+    });
+    this.sectionsService.$sections.subscribe((sections) => {
+      let currentSection = sections.find(
+        (section) => section.sectionId === this.currentSectionId
+      );
+      this.createImageGrid(
+        this.allImages,
+        this.tagsService.tags.filter((tag) => {
+          if (currentSection)
+            currentSection.tags.some((_tag) => tag.tagId === _tag.tagId);
+        })
+      );
     });
   }
 
-  createImageGrid(images: IImage[]) {
+  createImageGrid(images: IImage[], filter: ITag[]) {
     this.imagesTable = [];
     this.images = images.filter((image) => {
-      if (this.tagsService.filter.length === 0) return true;
-      return this.tagsService.filter.every((ftag) => {
+      if (filter.length === 0) return true;
+      return filter.every((ftag) => {
         return image.tags.some((tag) => tag.tagId === ftag.tagId);
       });
     });
@@ -112,12 +139,15 @@ export class MainComponent implements AfterViewInit {
     }
     this.loading = false;
     this.images = images;
+    this.cdr.markForCheck();
   }
 
   getTagSelectedForImage(tag: ITag, image: IImage) {
     return image.tags.some((_tag) => _tag.tagId === tag.tagId);
   }
-  toggleTagOnImageInGrid(tag: ITag, image: IImage) {
+  toggleTagOnImageInGrid(tag: ITag, image: IImage | null) {
+    if (!image) return; //never
+
     for (let column of this.imagesTable) {
       for (let _image of column) {
         if (_image.imageId === image.imageId) {

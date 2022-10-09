@@ -7,7 +7,5 @@ import { ITag } from './shared/models/image.model';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-  filteredTags: ITag[] = [];
-
   title = 'GalleryFront';
 }

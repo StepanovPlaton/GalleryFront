@@ -10,6 +10,7 @@ export interface ITag {
 export interface ISection {
   sectionId: number;
   section: string;
+  tags: ITagWithoutBgColor[];
 }
 
 export interface IImage {

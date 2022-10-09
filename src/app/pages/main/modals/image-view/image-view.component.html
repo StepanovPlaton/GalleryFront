@@ -15,31 +15,10 @@
       />
     </div>
     <div class="tags_wrapper">
-      <div *ngFor="let tag of tags">
-        <app-tag
-          *ngIf="authorized || getTagSelectedForImage(tag, openedImage)"
-          [editable]="authorized"
-          [tag]="tag"
-          [selected]="getTagSelectedForImage(tag, openedImage)"
-          [canToggle]="authorized"
-          (selectToggle)="authorized && toggleTagOnImage(tag, openedImage)"
-          (changeTagName)="changeTagName(tag.tagId, $event)"
-          (deleteTag)="deleteTag(tag.tagId)"
-        ></app-tag>
-      </div>
-      <app-tag
-        *ngIf="addingNewTag"
-        [createNew]="true"
-        (createNewTag)="createNewTag($event)"
-      >
-      </app-tag>
-      <div
-        class="add_tag"
-        *ngIf="authorized"
-        (click)="addingNewTag = true; $event.stopPropagation()"
-      >
-        <img [src]="ADD" />
-      </div>
+      <app-tag-list
+        [getSelectStatus]="getTagSelectedForImage.bind(this)"
+        (toggle)="toggleTagOnImage($event)"
+      ></app-tag-list>
     </div>
   </div>
 </div>

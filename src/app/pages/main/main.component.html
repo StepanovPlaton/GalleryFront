@@ -22,13 +22,13 @@
   <app-image-view
     [inputImage]="viewedImage"
     [authorized]="authorized"
-    (toggleTagOnImageInGrid)="toggleTagOnImageInGrid($event.tag, $event.image)"
+    (toggleTagOnImageInGrid)="toggleTagOnImageInGrid($event, viewedImage)"
     (closeModal)="viewedImage = null"
   ></app-image-view>
-  <app-auth class="app_auth" (authStateChange)="authorized = $event"></app-auth>
+  <app-auth class="app_auth"></app-auth>
   <app-add-image
     class="app_add_image"
     *ngIf="authorized"
-    (addNewImage)="allImages.push($event); createImageGrid(allImages)"
+    (addNewImage)="allImages.push($event)"
   ></app-add-image>
 </section>

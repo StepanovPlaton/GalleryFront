@@ -5,13 +5,16 @@
     align-items: center;
     justify-content: space-between;
 
+    --side-menu-width: 350px;
     .side_menu {
-        width: 20%;
+        width: var(--side-menu-width);
         height: 100%;
+        z-index: 5;
     }
 
     .content_section {
-        width: 80%;
+        width: calc(100% - var(--side-menu-width));
         height: 100%;
     }
+
 }

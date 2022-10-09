@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpRequest } from '@angular/common/http';
-import { IImage, ITagWithoutBgColor } from '../models/image.model';
-import { ISection } from '../models/sections.model';
+import { IImage, ISection, ITagWithoutBgColor } from '../models/image.model';
 import { catchError, of, switchMap } from 'rxjs';
 import { TagsColorService } from '../utils/tags-colors.service';
+import { AuthorizationService } from './authorization.service';
 
 @Injectable({
   providedIn: 'root',
@@ -50,41 +50,42 @@ export class ApiService {
       })
     );
   }
-  addTagToImage(imageId: number, tagId: number, token: string) {
-    return this.http.post(`/api/images/${imageId}/tags/${tagId}`, {
-      token: token,
-    });
+  addTagToImage(imageId: number, tagId: number) {
+    return this.http.post(`/api/images/${imageId}/tags/${tagId}`, {});
   }
-  deleteTagFromImage(imageId: number, tagId: number, token: string) {
-    return this.http.delete(`/api/images/${imageId}/tags/${tagId}`, {
-      body: { token: token },
-    });
+  deleteTagFromImage(imageId: number, tagId: number) {
+    return this.http.delete(`/api/images/${imageId}/tags/${tagId}`, {});
   }
-  changeTagName(tagId: number, newTagName: string, token: string) {
-    return this.http.put(`/api/tags/${tagId}?edited_name=${newTagName}`, {
-      token: token,
-    });
+  changeTagName(tagId: number, newTagName: string) {
+    return this.http.put(`/api/tags/${tagId}?edited_name=${newTagName}`, {});
   }
-  createTag(tagName: string, token: string) {
-    return this.http.post<{ tagId: number }>(`/api/tags?tag_name=${tagName}`, {
-      token: token,
-    });
+  createTag(tagName: string) {
+    return this.http.post<{ tagId: number }>(
+      `/api/tags?tag_name=${tagName}`,
+      {}
+    );
   }
-  deleteTag(tagId: number, token: string) {
-    return this.http.delete(`/api/tags/${tagId}`, {
-      body: { token: token },
-    });
+  deleteTag(tagId: number) {
+    return this.http.delete(`/api/tags/${tagId}`, {});
   }
 
   getListOfSections() {
     return this.http.get<ISection[]>(`/api/sections`);
   }
+  addTagToSection(sectionId: number, tagId: number) {
+    return this.http.post(`/api/sections/${sectionId}/tags/${tagId}`, {});
+  }
+  deleteTagFromSection(imageId: number, tagId: number) {
+    return this.http.delete(`/api/sections/${imageId}/tags/${tagId}`, {});
+  }
+  changeSectionName(sectionId: number, section: string) {
+    return this.http.put(`/api/sections/${sectionId}?section=${section}`, {});
+  }
 
-  checkToken(token: string) {
+  checkToken(token?: string) {
+    // the token can be added to the interceptor
     return this.http
-      .post(`/api/admin/token`, {
-        token: token,
-      })
+      .post(`/api/admin/token`, token ? { token: token } : {})
       .pipe(
         catchError(() => of(false)),
         switchMap(() => of(true))
